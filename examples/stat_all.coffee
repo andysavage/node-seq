@@ -3,14 +3,14 @@ Hash = require 'hashish'
 Seq = require 'seq'
 
 Seq()
-    .seq_((next) ->
-        fs.readdir(__dirname, next)
+    .seq(() ->
+        fs.readdir(__dirname, @)
     )
     .flatten()
-    .parEach_((next, file) ->
-        fs.stat(__dirname + '/' + file, next.into(file))
+    .parEach((file) ->
+        fs.stat(__dirname + '/' + file, @.into(file))
     )
-    .seq_((next) ->
-        sizes = Hash.map(next.vars, (s) -> s.size)
+    .seq(() ->
+        sizes = Hash.map(@.vars, (s) -> s.size)
         console.dir sizes
     )

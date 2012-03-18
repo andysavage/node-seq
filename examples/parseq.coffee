@@ -3,10 +3,10 @@ exec = require('child_process').exec
 Seq = require 'seq'
 
 Seq()
-    .seq_((next) -> exec 'whoami', next)
-    .par_((next, who) -> exec('groups ' + who, next))
-    .par_((next, who) -> fs.readFile(__filename, 'utf8', next))
-    .seq_((next, groups, src) ->
+    .seq(() -> exec 'whoami', @)
+    .par((who) -> exec('groups ' + who, @))
+    .par((who) -> fs.readFile(__filename, 'utf8', @))
+    .seq((groups, src) ->
         console.log('Groups: ' + groups.trim())
         console.log('This file has ' + src.length + ' bytes')
     )

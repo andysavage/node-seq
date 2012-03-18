@@ -183,7 +183,7 @@ alter the stack, but the callback may alter the stack itself by modifying
 `this.stack`.
 
 The callback is executed `cb(x,i)` where `x` is the element and `i` is the
-index. 
+index.
 
 `forEach` is a sequential operation like `seq` and won't run until all pending
 parallel requests yield results.
@@ -197,7 +197,7 @@ Like `forEach`, call `cb` for each element on the stack, but unlike `forEach`,
 next element in the stack.
 
 The callback is executed `cb(x,i)` where `x` is the element and `i` is the
-index. 
+index.
 
 If `this()` is supplied non-falsy error, the error propagates downward but any
 other arguments are ignored. `seqEach` does not modify the stack itself.
@@ -214,7 +214,7 @@ Unlike `forEach`, `parEach` waits for all actions to call `this()` before moving
 along to the next action in the chain.
 
 The callback is executed `cb(x,i)` where `x` is the element and `i` is the
-index. 
+index.
 
 `parEach` does not modify the stack itself and errors supplied to `this()`
 propagate.
@@ -243,7 +243,7 @@ these values.
 -----------
 
 Executes the callback `cb(x, idx)` against each element on the stack, waiting for the
-callback to yield with `this` before moving on to the next element. If the callback 
+callback to yield with `this` before moving on to the next element. If the callback
 returns an error or a falsey value, the element will not be included in the resulting
 stack.
 
@@ -343,28 +343,6 @@ Seq([1, 2, 3])
 ;
 ````
 
-
-
-
-Explicit Parameters
--------------------
-
-For environments like coffee-script or nested logic where threading `this` is
-bothersome, you can use:
-
-* seq_
-* par_
-* forEach_
-* seqEach_
-* parEach_
-* seqMap_
-* parMap_
-
-which work exactly like their un-underscored counterparts except for the first
-parameter to the supplied callback is set to the context, `this`.
-
-
-
 Context Object
 ==============
 
@@ -417,6 +395,7 @@ This is used for error propagation. You probably shouldn't mess with it.
 
 Installation
 ============
+Ths original code is available following.
 
 With [npm](http://github.com/isaacs/npm), just do:
 
@@ -426,12 +405,14 @@ or clone this project on github:
 
     git clone http://github.com/substack/node-seq.git
 
-To run the tests with [expresso](http://github.com/visionmedia/expresso),
+If you want to download my code, just do:
+
+    git clone git://github.com/YaaaaaSuuuuu/node-seq.git
+
+To run the tests with [mocha](http://github.com/visionmedia/mocha),
 just do:
 
-    expresso
-
-
+    mocha
 
 Dependencies
 ------------

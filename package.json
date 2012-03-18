@@ -12,10 +12,11 @@
         "hashish" : ">=0.0.2 <0.1"
     },
     "devDependencies" : {
-        "expresso" : ">=0.7.x"
+        "mocha" : "*",
+        "should" : "*"
     },
     "script" : {
-        "test" : "expresso"
+        "test" : "mocha"
     },
     "keywords" : [
         "flow-control", "flow", "control", "async", "asynchronous", "chain",
