@@ -40,7 +40,9 @@ function builder (saw, xs) {
             if (lastPar != undefined) {
               saw.jump(lastPar);
             }
-            saw.down('catch');
+            else {
+              saw.down('catch');
+            }
           }
           else {
             if (typeof key == 'number') {
@@ -95,6 +97,7 @@ function builder (saw, xs) {
         else if (running === 0) {
             action(saw.step, key,
                 function () {
+                    lastPar = saw.step;
                     context.stack_ = [];
                     var args = [].slice.call(arguments);
                     args.unshift.apply(args, bound.map(function (arg) {

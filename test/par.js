@@ -65,6 +65,33 @@ describe('Par', function () {
     ;
   });
 
+  it('should support par seq error handle issue #5', function (done) {
+    var to = setTimeout(function () {
+      throw new Error('2nd catch never fired');
+    }, 50);
+    var tc = setTimeout(function () {
+      throw new Error('seq never fired');
+    }, 25);
+
+    Seq()
+      .par(function () {
+        this(null, 'x');
+      })
+      .catch(function () {
+        throw new Error('should skip this');
+      })
+      .seq(function (x) {
+        clearTimeout(tc);
+        this('pow!');
+      })
+      .catch(function (err) {
+        clearTimeout(to);
+        err.should.equal('pow!');
+        done();
+      })
+    ;
+  });
+
   it('should catch without Seq', function (done) {
     var finish = false,
         caught = false;

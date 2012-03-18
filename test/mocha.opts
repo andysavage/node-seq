@@ -1,4 +1,4 @@
 --require should
 --slow 20
 --growl
---reporter spec
+--reporter dot
