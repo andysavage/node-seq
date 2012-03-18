@@ -25,10 +25,10 @@ describe('seqEach', function () {
   it('should catch error in seq', function (done) {
     var to = setTimeout(function () {
       throw new Error('never caught the error');
-    }, 25);
+    }, 100);
     var tf = setTimeout(function () {
       throw new Error('never resumed afterwards')
-    }, 25);
+    }, 50);
 
     var meows = [];
 
