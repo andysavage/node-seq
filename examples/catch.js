@@ -25,7 +25,7 @@ Seq()
       console.error(error);
     })
     .seq(function (args) {
-      throw new Error('This must passed');
+      throw new Error('This step must be passed');
     })
 ;
 

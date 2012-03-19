@@ -24,5 +24,5 @@ Seq()
       console.error(error)
     )
     .seq((args) ->
-      throw new Error('This must passed')
+      throw new Error('This step must be passed')
     )
