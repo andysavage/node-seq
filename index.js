@@ -487,4 +487,8 @@ function builder (saw, xs) {
         saw.next();
     };
 
+    this.do = function (cb) {
+      saw.nest(cb, context);
+    };
+
 }
