@@ -45,10 +45,10 @@ describe('parEach', function () {
     ;
   });
 
-  it('should have pareachinto', function (done) {
+  it('should have parEachInto', function (done) {
     var to = setTimeout(function () {
       throw new Error('never finished');
-    });
+    }, 100);
 
     Seq([1, 2, 3, 4])
         .parEach(function (x, i) {
