@@ -5,7 +5,7 @@ exports.seq = function () {
     var to = setTimeout(function () {
         assert.fail('never got to the end of the chain');
     }, 100);
-    
+
     Seq([0])
         .seq('pow', function (n) {
             this(null, 1);
@@ -34,7 +34,7 @@ exports.into = function () {
         assert.fail('never got to the end of the chain');
     }, 10);
     var calls = 0;
-    
+
     Seq([3,4,5])
         .seq(function () {
             this.into('w')(null, 5);
@@ -52,11 +52,11 @@ exports.catchSeq = function () {
     var to = setTimeout(function () {
         assert.fail('never caught the error');
     }, 100);
-    
+
     var tf = setTimeout(function () {
         assert.fail('final action never executed');
     }, 100);
-    
+
     var calls = {};
     Seq([1])
         .seq(function (n) {
@@ -83,11 +83,45 @@ exports.catchSeq = function () {
     ;
 };
 
+exports.catchSeqAtIndiviStep = function () {
+    var to = setTimeout(function () {
+        assert.fail('never caught the error');
+    }, 100);
+
+    var tf = setTimeout(function () {
+        assert.fail('final action never executed');
+    }, 100);
+
+    Seq([1])
+        .seq(function (n) {
+            assert.eql(n, 1);
+            this(null, 'x');
+        })
+        .catch(function (err) {
+          assert.fail('should skip this catch');
+        })
+        .seq(function (x) {
+            assert.eql(x, 'x');
+        })
+        .seq(function (x) {
+            this('pow!');
+        })
+        .catch(function (err) {
+            assert.eql(err, 'pow!');
+            clearTimeout(to);
+        })
+        .do(function () {
+            //assert.ok(calls.after);
+            clearTimeout(tf);
+        })
+    ;
+};
+
 exports.par = function () {
     var to = setTimeout(function () {
         assert.fail('seq never fired');
     }, 1000);
-    
+
     Seq()
         .seq(function () {
             this(null, 'mew');
@@ -120,7 +154,7 @@ exports.catchPar = function () {
     var tc = setTimeout(function () {
         assert.fail('error not caught');
     }, 1000);
-    
+
     Seq()
         .par('one', function () {
             setTimeout(this.bind({}, 'rawr'), 25);
@@ -144,7 +178,7 @@ exports.catchParWithoutSeq = function () {
     var tc = setTimeout(function () {
         assert.fail('error not caught');
     }, 5000);
-    
+
     Seq()
         .par('one', function () {
             setTimeout(this.bind({}, 'rawr'), 25);
@@ -157,7 +191,7 @@ exports.catchParWithoutSeq = function () {
             assert.eql(err, 'rawr');
             assert.eql(key, 'one');
         })
-    ;    
+    ;
 }
 
 exports.catchParMultipleErrors = function() {
@@ -166,7 +200,7 @@ exports.catchParMultipleErrors = function() {
         assert.fail('Never finished');
     }, 1000);
     var times = 0;
-    
+
     Seq()
         .par('one', function() {
             setTimeout(this.bind({}, 'rawr1'), 25);
@@ -198,7 +232,7 @@ exports.catchParThenSeq = function () {
         { key : 'one', msg : 'rawr' },
         { key : 'four', msg : 'pow' },
     ];
-    
+
     Seq()
         .par('one', function () {
             setTimeout(this.bind({}, 'rawr'), 25);
@@ -226,14 +260,14 @@ exports.catchParThenSeq = function () {
             times ++;
             assert.eql(times, 1);
         })
-    ;    
+    ;
 }
 
 exports.forEach = function () {
     var to = setTimeout(function () {
         assert.fail('seq never fired after forEach');
     }, 25);
-    
+
     var count = 0;
     Seq([1,2,3])
         .push(4)
@@ -252,7 +286,7 @@ exports.seqEach = function () {
     var to = setTimeout(function () {
         assert.fail('seqEach never finished');
     }, 25);
-    
+
     var count = 0;
     var ii = 0;
     Seq([1,2,3])
@@ -276,9 +310,9 @@ exports.seqEachCatch = function () {
     var tf = setTimeout(function () {
         assert.fail('never resumed afterwards');
     }, 25);
-    
+
     var meows = [];
-    
+
     var values = [];
     Seq([1,2,3,4])
         .seqEach(function (x, i) {
@@ -306,7 +340,7 @@ exports.parEach = function () {
     var to = setTimeout(function () {
         assert.fail('never finished');
     }, 100);
-    
+
     var values = [];
     Seq([1,2,3,4])
         .parEach(function (x, i) {
@@ -326,7 +360,7 @@ exports.parEachVars = function () {
         assert.fail('never finished');
     }, 1000);
     var values = [];
-    
+
     Seq()
         .seq('abc', function () {
             this(null, 'a', 'b', 'c');
@@ -348,7 +382,7 @@ exports.parEachInto = function () {
     var to = setTimeout(function () {
         assert.fail('never finished');
     }, 100);
-    
+
     Seq([1,2,3,4])
         .parEach(function (x, i) {
             setTimeout((function () {
@@ -367,7 +401,7 @@ exports.parEachCatch = function () {
     var to = setTimeout(function () {
         assert.fail('never finished');
     }, 100);
-    
+
     var values = [];
     Seq([1,2,3,4])
         .parEach(function (x, i) {
@@ -389,15 +423,15 @@ exports.parEachLimited = function () {
     var to = setTimeout(function () {
         assert.fail('never finished');
     }, 500);
-    
+
     var running = 0;
     var values = [];
     Seq([1,2,3,4,5,6,7,8,9,10])
         .parEach(3, function (x, i) {
             running ++;
-            
+
             assert.ok(running <= 3);
-            
+
             values.push([i,x]);
             setTimeout((function () {
                 running --;
@@ -417,15 +451,15 @@ exports.parMap = function () {
     var to = setTimeout(function () {
         assert.fail('never finished');
     }, 500);
-    
+
     var running = 0;
     var values = [];
     Seq([1,2,3,4,5,6,7,8,9,10])
         .parMap(2, function (x, i) {
             running ++;
-            
+
             assert.ok(running <= 2);
-            
+
             setTimeout((function () {
                 running --;
                 this(null, x * 10);
@@ -443,7 +477,7 @@ exports.parMapFast = function () {
     var to = setTimeout(function () {
         assert.fail('never finished');
     }, 500);
-    
+
     var values = [];
     Seq([1,2,3,4,5,6,7,8,9,10])
         .parMap(function (x, i) {
@@ -461,7 +495,7 @@ exports.parMapInto = function () {
     var to = setTimeout(function () {
         assert.fail('never finished');
     }, 500);
-    
+
     var values = [];
     Seq([1,2,3,4,5,6,7,8,9,10])
         .parMap(function (x, i) {
@@ -479,15 +513,15 @@ exports.seqMap = function () {
     var to = setTimeout(function () {
         assert.fail('never finished');
     }, 500);
-    
+
     var running = 0;
     var values = [];
     Seq([1,2,3,4,5,6,7,8,9,10])
         .seqMap(function (x, i) {
             running ++;
-            
+
             assert.eql(running, 1);
-            
+
             setTimeout((function () {
                 running --;
                 this(null, x * 10);
@@ -505,15 +539,15 @@ exports.seqMapInto = function () {
     var to = setTimeout(function () {
         assert.fail('never finished');
     }, 500);
-    
+
     var running = 0;
     var values = [];
     Seq([1,2,3,4,5,6,7,8,9,10])
         .seqMap(function (x, i) {
             running ++;
-            
+
             assert.eql(running, 1);
-            
+
             setTimeout((function () {
                 running --;
                 this.into(9 - i)(null, x * 10);
@@ -530,15 +564,15 @@ exports.parFilter = function () {
     var to = setTimeout(function () {
         assert.fail('never finished');
     }, 500);
-    
+
     var running = 0;
     var values = [];
     Seq([1,2,3,4,5,6,7,8,9,10])
         .parFilter(2, function (x, i) {
             running ++;
-            
+
             assert.ok(running <= 2);
-            
+
             setTimeout((function () {
                 running --;
                 this(null, x % 2 === 0);
@@ -556,15 +590,15 @@ exports.seqFilter = function () {
     var to = setTimeout(function () {
         assert.fail('never finished');
     }, 500);
-    
+
     var running = 0;
     var values = [];
     Seq([1,2,3,4,5,6,7,8,9,10])
         .seqFilter(function (x, i) {
             running ++;
-            
+
             assert.eql(running, 1);
-            
+
             setTimeout((function () {
                 running --;
                 this(null, x % 2 === 0);
@@ -581,15 +615,15 @@ exports.parFilterInto = function () {
     var to = setTimeout(function () {
         assert.fail('never finished');
     }, 500);
-    
+
     var running = 0;
     var values = [];
     Seq([1,2,3,4,5,6,7,8,9,10])
         .parFilter(2, function (x, i) {
             running ++;
-            
+
             assert.ok(running <= 2);
-            
+
             setTimeout((function () {
                 running --;
                 this.into(x % 3)(null, x % 2 === 0);
@@ -607,15 +641,15 @@ exports.seqFilterInto = function () {
     var to = setTimeout(function () {
         assert.fail('never finished');
     }, 500);
-    
+
     var running = 0;
     var values = [];
     Seq([1,2,3,4,5,6,7,8,9,10])
         .seqFilter(function (x, i) {
             running ++;
-            
+
             assert.eql(running, 1);
-            
+
             setTimeout((function () {
                 running --;
                 this.into(x % 3)(null, x % 2 === 0);
@@ -632,7 +666,7 @@ exports.stack = function () {
     var to = setTimeout(function () {
         assert.fail('never finished');
     }, 100);
-    
+
     Seq([4,5,6])
         .seq(function (x, y, z) {
             assert.eql(arguments.length, 3);
@@ -731,7 +765,7 @@ exports.ap = function () {
     var to = setTimeout(function () {
         assert.fail('never finished');
     }, 100);
-    
+
     var cmp = [1,2,3];
     Seq.ap([1,2,3])
         .seqEach(function (x) {
@@ -743,7 +777,7 @@ exports.ap = function () {
             assert.eql(cmp, []);
         })
     ;
-    
+
     assert.throws(function () {
         Seq.ap({ a : 1, b : 2 });
     });
@@ -753,7 +787,7 @@ exports.seqBind = function () {
     var to = setTimeout(function () {
         assert.fail('never finished');
     }, 100);
-    
+
     Seq([4,5])
         .seq(function (a, b, c, d) {
             assert.eql(a, 2);
@@ -778,7 +812,7 @@ exports.parBind = function () {
     var t3 = setTimeout(function () {
         assert.fail('3 never finished');
     }, 500);
-    
+
     Seq(['c'])
         .par(function (a, b, c) {
             clearTimeout(t1);
@@ -803,7 +837,7 @@ exports.emptySeqEach = function () {
     var to = setTimeout(function () {
         assert.fail('never finished');
     }, 100);
-    
+
     Seq()
         .seqEach(function (x) {
             assert.fail('no elements');
@@ -818,7 +852,7 @@ exports.emptyForEach = function () {
     var to = setTimeout(function () {
         assert.fail('seq never fired');
     }, 500);
-    
+
     Seq()
         .forEach(function () {
             assert.fail('non-empty stack');
@@ -833,7 +867,7 @@ exports.emptyParEach = function () {
     var to = setTimeout(function () {
         assert.fail('seq never fired');
     }, 500);
-    
+
     Seq()
         .parEach(function () {
             assert.fail('non-empty stack');
@@ -848,7 +882,7 @@ exports.emptyParMap = function () {
     var to = setTimeout(function () {
         assert.fail('seq never fired');
     }, 500);
-    
+
     Seq()
         .parMap(function () {
             assert.fail('non-empty stack');
@@ -863,7 +897,7 @@ exports.emptySeqMap = function () {
     var to = setTimeout(function () {
         assert.fail('seq never fired');
     }, 500);
-    
+
     Seq()
         .seqMap(function () {
             assert.fail('non-empty stack');
@@ -878,10 +912,10 @@ exports.ok = function () {
     var to = setTimeout(function () {
         assert.fail('seq never fired');
     }, 500);
-    
+
     function moo1 (cb) { cb(3) }
     function moo2 (cb) { cb(4) }
-    
+
     Seq()
         .par(function () { moo1(this.ok) })
         .par(function () { moo2(this.ok) })
@@ -897,10 +931,10 @@ exports.nextOk = function () {
     var to = setTimeout(function () {
         assert.fail('seq never fired');
     }, 500);
-    
+
     function moo1 (cb) { cb(3) }
     function moo2 (cb) { cb(4) }
-    
+
     Seq()
         .par_(function (next) { moo1(next.ok) })
         .par_(function (next) { moo2(next.ok) })
