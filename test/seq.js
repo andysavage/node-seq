@@ -1,5 +1,6 @@
-var Seq = require('seq');
+var Seq = require('../index');
 var assert = require('assert');
+assert.eql=assert.deepEqual;
 
 exports.seq = function () {
     var to = setTimeout(function () {

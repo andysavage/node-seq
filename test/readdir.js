@@ -1,12 +1,12 @@
 var assert = require('assert');
-var Seq = require('seq');
+var Seq = require('../index');
 var fs = require('fs');
 
 exports.readdir = function () {
     var to = setTimeout(function () {
         assert.fail('never got to the end of the chain');
     }, 500);
-    
+
     Seq()
         .seq(fs.readdir, __dirname, Seq)
         .seq(function (files) {
@@ -15,13 +15,13 @@ exports.readdir = function () {
         })
         .catch(assert.fail)
     ;
-}; 
+};
 
 exports.readdirs = function () {
     var to = setTimeout(function () {
         assert.fail('never got to the end of the chain');
     }, 500);
-    
+
     Seq()
         .par(fs.readdir, __dirname, Seq)
         .par(fs.readdir, __dirname + '/../examples', Seq)
@@ -32,4 +32,4 @@ exports.readdirs = function () {
         })
         .catch(assert.fail)
     ;
-}; 
+};

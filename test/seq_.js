@@ -1,11 +1,11 @@
-var Seq = require('seq');
+var Seq = require('../index');
 var assert = require('assert');
 
 exports.seq_ = function () {
     var to = setTimeout(function () {
         assert.fail('never got to the end of the chain');
     }, 5000);
-    
+
     Seq(['xxx'])
         .seq_('pow', function (next, x) {
             assert.eql(next, this);
@@ -24,7 +24,7 @@ exports.par_ = function () {
     var to = setTimeout(function () {
         assert.fail('never got to the end of the chain');
     }, 5000);
-    
+
     Seq()
         .par_(function (next) {
             assert.eql(next, this);
@@ -46,7 +46,7 @@ exports.forEach_ = function () {
     var to = setTimeout(function () {
         assert.fail('never got to the end of the chain');
     }, 5000);
-    
+
     var acc = [];
     Seq([7,8,9])
         .forEach_(function (next, x) {
@@ -64,7 +64,7 @@ exports.seqEach_ = function () {
     var to = setTimeout(function () {
         assert.fail('never got to the end of the chain');
     }, 5000);
-    
+
     var acc = [];
     Seq([7,8,9])
         .seqEach_(function (next, x) {
@@ -86,7 +86,7 @@ exports.parEach_ = function () {
     var to = setTimeout(function () {
         assert.fail('never got to the end of the chain');
     }, 5000);
-    
+
     var acc = [];
     Seq([7,8,9])
         .parEach_(function (next, x) {
@@ -108,7 +108,7 @@ exports.seqMap_ = function () {
     var to = setTimeout(function () {
         assert.fail('never got to the end of the chain');
     }, 5000);
-    
+
     var acc = [];
     Seq([7,8,9])
         .seqMap_(function (next, x) {
@@ -130,7 +130,7 @@ exports.parMap_ = function () {
     var to = setTimeout(function () {
         assert.fail('never got to the end of the chain');
     }, 5000);
-    
+
     var acc = [];
     Seq([7,8,9])
         .parMap_(function (next, x) {
