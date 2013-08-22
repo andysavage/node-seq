@@ -19,7 +19,16 @@ function Seq (xs) {
     });
 
 	//Support previous usages
-	h['catch'] = ch.error;
+	ch['catch'] = ch.error;
+
+	ch.done = function(cb) {
+		ch.seq(function() {
+			cb(null, {stack: this.stack, vars: this.vars});
+		});
+		ch.error(function(err) {
+			cb(err, {stack: this.stack, vars: this.vars});
+		});
+	};
 
 	return ch;
 }

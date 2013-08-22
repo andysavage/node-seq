@@ -979,3 +979,48 @@ exports.regressionTestForAccidentalDeepTraversalOfTheContext = function () {
             assert.ok((new Date().getTime() - startTime) < 1000, 'if this test takes longer than a second, the bug must have been reintroduced');
         });
 };
+
+
+exports.done = function () {
+  Seq()
+    .seq(function () {
+      this(null, 123);
+    })
+    .done(function (err, result) {
+      assert.eql(err, null);
+      assert.eql(result.stack, [123]);
+    });
+};
+
+exports.donePar = function () {
+  var numCalls = 0;
+  Seq()
+    .par(function () {
+      this(null, 1);
+    })
+    .par(function () {
+      this(null, 2);
+    })
+    .done(function (err, result) {
+      assert.eql(++numCalls, 1);
+      assert.eql(err, null);
+      assert.eql(result.stack, [1,2]);
+    });
+};
+
+exports.doneError = function () {
+  var numCalls = 0;
+  Seq()
+    .seq('a', function () {
+      this(null, 1);
+    })
+    .seq(function () {
+      this('fail', 2);
+    })
+    .done(function (err, result) {
+      assert.eql(++numCalls, 1);
+      assert.eql(err, 'fail');
+      assert.eql(result.stack, [1]);
+      assert.eql(result.vars, {a:1});
+    });
+};
