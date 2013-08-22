@@ -105,7 +105,7 @@ function builder (saw, xs) {
 			return cb;
 		};
 
-        self.apply(cb, context.stack);
+        f.apply(cb, context.stack);
     }
 
     var running = 0;
