@@ -2,6 +2,8 @@ var EventEmitter = require('events').EventEmitter;
 var Hash = require('hashish');
 var Chainsaw = require('chainsaw');
 
+var slice = [].slice;
+
 module.exports = Seq;
 function Seq (xs) {
     if (xs && !Array.isArray(xs) || arguments.length > 1) {
@@ -37,6 +39,7 @@ Seq.ap = Seq; // for compatability with versions <0.3
 
 function builder (saw, xs) {
     var context = {
+    	dead : false,
         vars : {},
         args : {},
         stack : xs,
@@ -44,10 +47,18 @@ function builder (saw, xs) {
     };
     context.stack_ = context.stack;
 
+	function die(){
+	        context.dead = true;
+	        saw.step = saw.actions.length+1;
+	}
+    context.die = die;
+
     function action (step, key, f, g) {
         var cb = function (err) {
-            var args = [].slice.call(arguments, 1);
-            if (err) {
+			var args = slice.call(arguments, 1);
+            if (context.dead) {
+                saw.step = saw.actions.length+1;
+            } else if (err) {
                 context.error = { message : err, key : key };
 
                 if (lastPar != undefined) {
@@ -89,14 +100,19 @@ function builder (saw, xs) {
 
         cb.ok = cb.bind(cb, null);
 
-        f.apply(cb, context.stack);
+		cb.die = function (){
+		    die();
+			return cb;
+		};
+
+        self.apply(cb, context.stack);
     }
 
     var running = 0;
     var errors = 0;
 
     this.seq = function (key, cb) {
-        var bound = [].slice.call(arguments, 2);
+        var bound = slice.call(arguments, 2);
 
         if (typeof key === 'function') {
             if (arguments.length > 1) bound.unshift(cb);
@@ -109,7 +125,7 @@ function builder (saw, xs) {
             action(saw.step, key,
                 function () {
                     context.stack_ = [];
-                    var args = [].slice.call(arguments);
+                    var args = slice.call(arguments);
                     args.unshift.apply(args, bound.map(function (arg) {
                         return arg === Seq ? this : arg
                     }, this));
@@ -132,7 +148,7 @@ function builder (saw, xs) {
             context.stack_ = [];
         }
 
-        var bound = [].slice.call(arguments, 2);
+        var bound = slice.call(arguments, 2);
         if (typeof key === 'function') {
             if (arguments.length > 1) bound.unshift(cb);
             cb = key;
@@ -140,7 +156,7 @@ function builder (saw, xs) {
             context.stack_.push(null);
         }
         var cb_ = function () {
-            var args = [].slice.call(arguments);
+            var args = slice.call(arguments);
             args.unshift.apply(args, bound.map(function (arg) {
                 return arg === Seq ? this : arg
             }, this));
@@ -170,13 +186,13 @@ function builder (saw, xs) {
 
     [ 'seq', 'par' ].forEach(function (name) {
         this[name + '_'] = function (key) {
-            var args = [].slice.call(arguments);
+            var args = slice.call(arguments);
 
             var cb = typeof key === 'function'
                 ? args[0] : args[1];
 
             var fn = function () {
-                var argv = [].slice.call(arguments);
+                var argv = slice.call(arguments);
                 argv.unshift(this);
                 cb.apply(this, argv);
             };
@@ -297,7 +313,7 @@ function builder (saw, xs) {
                 };
 
                 next.ok = function () {
-                    var args = [].slice.call(arguments);
+                    var args = slice.call(arguments);
                     args.unshift(null);
                     return next.apply(next, args);
                 };
@@ -346,7 +362,7 @@ function builder (saw, xs) {
             };
 
             next.ok = function () {
-                var args = [].slice.call(arguments);
+                var args = slice.call(arguments);
                 args.unshift(null);
                 return next.apply(next, args);
             };
@@ -396,7 +412,7 @@ function builder (saw, xs) {
                 };
 
                 next.ok = function () {
-                    var args = [].slice.call(arguments);
+                    var args = slice.call(arguments);
                     args.unshift(null);
                     return next.apply(next, args);
                 };
@@ -451,7 +467,7 @@ function builder (saw, xs) {
             };
 
             next.ok = function () {
-                var args = [].slice.call(arguments);
+                var args = slice.call(arguments);
                 args.unshift(null);
                 return next.apply(next, args);
             };
@@ -464,7 +480,7 @@ function builder (saw, xs) {
         .forEach(function (name) {
             this[name + '_'] = function (cb) {
                 this[name].call(this, function () {
-                    var args = [].slice.call(arguments);
+                    var args = slice.call(arguments);
                     args.unshift(this);
                     cb.apply(this, args);
                 });
@@ -477,7 +493,7 @@ function builder (saw, xs) {
             this[name] = function () {
                 context.stack[name].apply(
                     context.stack,
-                    [].slice.call(arguments)
+                    slice.call(arguments)
                 );
                 saw.next();
                 return this;
@@ -490,7 +506,7 @@ function builder (saw, xs) {
             this[name] = function () {
                 var res = context.stack[name].apply(
                     context.stack,
-                    [].slice.call(arguments)
+                    slice.call(arguments)
                 );
                 // stack must be an array, or bad things happen
                 context.stack = (Array.isArray(res) ? res : [res]);
